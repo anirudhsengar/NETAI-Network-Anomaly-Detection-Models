@@ -1,0 +1,52 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: netai-gpu-training
+  namespace: netai
+  labels:
+    app: netai-anomaly
+    component: training
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app: netai-anomaly
+        component: training
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: trainer
+          image: netai-anomaly:gpu
+          command: ["python3", "scripts/train.py", "--config", "configs/default.yaml"]
+          resources:
+            requests:
+              memory: "4Gi"
+              cpu: "2000m"
+              nvidia.com/gpu: "1"
+            limits:
+              memory: "16Gi"
+              cpu: "4000m"
+              nvidia.com/gpu: "1"
+          volumeMounts:
+            - name: model-storage
+              mountPath: /app/checkpoints
+            - name: data-storage
+              mountPath: /app/data
+            - name: config
+              mountPath: /app/configs/default.yaml
+              subPath: default.yaml
+      volumes:
+        - name: model-storage
+          persistentVolumeClaim:
+            claimName: netai-model-pvc
+        - name: data-storage
+          persistentVolumeClaim:
+            claimName: netai-data-pvc
+        - name: config
+          configMap:
+            name: netai-anomaly-config
+      tolerations:
+        - key: "nvidia.com/gpu"
+          operator: "Exists"
+          effect: "NoSchedule"

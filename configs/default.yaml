@@ -1,0 +1,67 @@
+# Default configuration for NETAI Anomaly Detection
+data:
+  database_path: "data/network_telemetry.db"
+  sequence_length: 32
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+  batch_size: 64
+
+features:
+  rolling_windows: [5, 15, 30]
+  numeric_features:
+    - throughput_mbps
+    - latency_ms
+    - packet_loss_pct
+    - retransmits
+    - jitter_ms
+  derived_features: true
+  normalize: true
+
+models:
+  autoencoder:
+    hidden_dims: [64, 32, 16]
+    latent_dim: 8
+    dropout: 0.1
+    learning_rate: 0.001
+    epochs: 50
+    threshold_percentile: 95
+
+  lstm:
+    hidden_dim: 64
+    num_layers: 2
+    dropout: 0.2
+    bidirectional: true
+    learning_rate: 0.001
+    epochs: 50
+    threshold_percentile: 95
+
+  transformer:
+    d_model: 64
+    nhead: 4
+    num_encoder_layers: 3
+    dim_feedforward: 128
+    dropout: 0.1
+    learning_rate: 0.0005
+    epochs: 50
+    threshold_percentile: 95
+
+  ensemble:
+    weights:
+      autoencoder: 0.33
+      lstm: 0.34
+      transformer: 0.33
+    strategy: "weighted_average"
+
+training:
+  device: "auto"  # auto, cpu, cuda, mps
+  early_stopping_patience: 10
+  checkpoint_dir: "checkpoints"
+  log_interval: 5
+  seed: 42
+
+inference:
+  host: "0.0.0.0"
+  port: 8000
+  model_path: "checkpoints/best_ensemble.pt"
+  batch_inference: true
