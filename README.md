@@ -35,27 +35,27 @@ Deep learning models for **network anomaly detection** using perfSONAR and trace
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                   Inference API (FastAPI)                │
-│              POST /predict  POST /predict/batch          │
+│                   Inference API (FastAPI)               │
+│              POST /predict  POST /predict/batch         │
 └──────────────────────────┬──────────────────────────────┘
                            │
 ┌──────────────────────────▼──────────────────────────────┐
-│                  Ensemble Detector                       │
-│         (Weighted Average / Max Strategy)                │
+│                  Ensemble Detector                      │
+│         (Weighted Average / Max Strategy)               │
 ├─────────────┬─────────────────┬─────────────────────────┤
 │ Autoencoder │  LSTM Detector  │ Transformer Detector    │
 │ (Recon MSE) │  (Seq Predict)  │ (Self-Attention)        │
 └─────────────┴─────────────────┴─────────────────────────┘
                            │
 ┌──────────────────────────▼──────────────────────────────┐
-│              Feature Engineering Pipeline                │
-│  Rolling Stats │ Lag Features │ Derived │ Normalization  │
+│              Feature Engineering Pipeline               │
+│  Rolling Stats │ Lag Features │ Derived │ Normalization │
 └──────────────────────────┬──────────────────────────────┘
                            │
 ┌──────────────────────────▼──────────────────────────────┐
-│            SQLite Network Telemetry Database             │
+│            SQLite Network Telemetry Database            │
 │   perfSONAR throughput, latency, loss, retransmits,     │
-│   jitter, traceroute hops, network link metadata         │
+│   jitter, traceroute hops, network link metadata        │
 └─────────────────────────────────────────────────────────┘
 ```
 
